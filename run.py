@@ -20,7 +20,7 @@ if __name__ == "__main__" and len(sys.argv) > 1:
                                  processes=2)
     elif algo_type == "multi":
         algorithm = MultiProTVGL(filename, blocks=int(sys.argv[3]),
-                                 processes=2)
+                                 processes=int(sys.argv[4]))
     else:
         raise Exception("Invalid algorithm name")
     print "Running algorithm..."
