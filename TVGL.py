@@ -96,28 +96,6 @@ class TVGL(object):
         else:
             print "Max iterations (%s) reached" % max_iter
 
-    def soft_threshold_odd(self, a):
-        e = np.ones((self.dimension, self.dimension))
-        for i in range(self.dimension):
-            for j in range(self.dimension):
-                if i != j:
-                    if abs(a[i, j]) <= self.lambd/self.rho:
-                        e[i, j] = 0
-                    else:
-                        e[i, j] = np.sign(a[i, j])*(
-                            abs(a[i, j]) - self.lambd/self.rho)
-        return e
-
-    def group_lasso_penalty(self, a, nju):
-        e = np.zeros((self.dimension, self.dimension))
-        for j in range(self.dimension):
-            l2_norm = np.linalg.norm(a[:, j])
-            if l2_norm <= nju:
-                e[:, j] = np.zeros(self.dimension)
-            else:
-                e[:, j] = (1 - nju/l2_norm)*a[:, j]
-        return e
-
     def temporal_deviations(self):
         deviations = np.zeros(self.blocks - 1)
         for i in range(0, self.blocks - 1):

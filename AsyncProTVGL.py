@@ -1,8 +1,8 @@
 
+from TVGL import TVGL
 import numpy as np
 import multiprocessing
-import mp_workers2 as mp
-from TVGL import TVGL
+import mp_workers_async as mp
 
 
 class AsyncProTVGL(TVGL):

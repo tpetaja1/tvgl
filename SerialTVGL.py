@@ -1,6 +1,7 @@
 
-import numpy as np
 from TVGL import TVGL
+import penalty_functions as pf
+import numpy as np
 
 
 class SerialTVGL(TVGL):
@@ -27,12 +28,13 @@ class SerialTVGL(TVGL):
 
     def z0_update(self):
         for i in range(self.blocks):
-            self.z0s[i] = self.soft_threshold_odd(self.thetas[i] + self.u0s[i])
+            self.z0s[i] = pf.soft_threshold_odd(self.thetas[i] + self.u0s[i],
+                                                self.lambd, self.rho)
 
     def z1_z2_update(self):
         for i in range(1, self.blocks):
             a = self.thetas[i] - self.thetas[i-1] + self.u2s[i] - self.u1s[i-1]
-            e = self.group_lasso_penalty(a, 2*self.beta/self.rho)
+            e = pf.group_lasso_penalty(a, 2*self.beta/self.rho)
             self.z1s[i-1] = 0.5*(self.thetas[i-1] + self.thetas[i]
                                  + self.u1s[i] + self.u2s[i]) - 0.5*e
             self.z2s[i] = 0.5*(self.thetas[i-1] + self.thetas[i]
