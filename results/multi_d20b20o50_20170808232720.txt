@@ -1,0 +1,17 @@
+# Information
+Run datetime: 2017-08-08 23:27:20
+Data file: synthetic_data/1000x20_20170808191313.csv
+Algorithm type: multi
+Data dimension: 20
+Blocks: 20
+Observations in a block: 50
+Rho: 50
+Beta: 4
+Lambda: 90
+Processes used: 20
+
+# Results
+Algorithm run time: 253 seconds
+Iterations to complete: 637
+
+Temporal deviations: 0.488 0.445 0.449 0.414 0.418 0.392 0.416 0.424 0.411 1.000 0.388 0.404 0.368 0.345 0.378 0.399 0.393 0.403 0.468 
