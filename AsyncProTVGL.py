@@ -7,8 +7,10 @@ import mp_workers_async as mp
 
 class AsyncProTVGL(TVGL):
 
-    def __init__(self, filename, blocks, processes=1):
-        super(AsyncProTVGL, self).__init__(filename, blocks, processes)
+    def __init__(self, filename, blocks=10,
+                 lambd=30, beta=4, processes=2):
+        super(AsyncProTVGL, self).__init__(filename, blocks,
+                                           lambd, beta, processes)
 
     def theta_update(self):
         for i in range(self.blocks):

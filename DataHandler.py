@@ -10,14 +10,15 @@ class DataHandler(object):
         self.sigmas = []
         self.network_files = []
 
-    def read_network(self, filename, comment="#"):
+    def read_network(self, filename, comment="#", splitter=",",
+                     inversion=True):
         nodes = []
         self.network_files.append(filename)
         with open(filename, "r") as f:
             for i, line in enumerate(f):
                 if comment in line:
                     continue
-                data = line.split()
+                data = line.split(splitter)
                 if data[0] not in nodes:
                     nodes.append(int(data[0]))
                 if data[1] not in nodes:
@@ -28,16 +29,17 @@ class DataHandler(object):
             for i, line in enumerate(f):
                 if comment in line:
                     continue
-                data = line.split()
+                data = line.split(splitter)
                 network[int(data[0])-1, int(data[1])-1] = float(data[2])
                 network[int(data[1])-1, int(data[0])-1] = float(data[2])
         self.inverse_sigmas.append(network)
-        sigma = np.linalg.inv(network)
-        print np.linalg.eigvals(sigma)
-        self.sigmas.append(sigma)
-        print sigma
-        print np.shape(sigma)
-        print network
+        if inversion:
+            sigma = np.linalg.inv(network)
+            print np.linalg.eigvals(sigma)
+            self.sigmas.append(sigma)
+            print sigma
+            print np.shape(sigma)
+            print network
 
     def init_true_inverse_covariance_matrices(self):
         inverse_sigma1 = np.array([[1.00, 0.50, 0.00, 0.00, 0.00, 0.00],
@@ -78,6 +80,7 @@ class DataHandler(object):
         header = "# Data generated from networks:\n# "
         for f, datacount in zip(self.network_files, counts):
             header += "%s: %s, " % (f, datacount)
+        header = header[:-2]
         header += "\n"
         with open(filename, "w") as new_file:
             new_file.write(header)
@@ -109,6 +112,10 @@ class DataHandler(object):
             f.write("# Results\n")
             f.write("Algorithm run time: %s seconds\n" % alg.run_time)
             f.write("Iterations to complete: %s\n\n" % alg.iteration)
+            f.write("Matching edge ratio (nonzeros): {0:.3f}\n"
+                    .format(alg.nonzero_ratio))
+            f.write("Temporal deviations ratio (max/mean): {0:.3f}\n"
+                    .format(alg.dev_ratio))
             f.write("Temporal deviations: ")
             for dev in alg.deviations:
                 f.write("{0:.3f} ".format(dev))
@@ -117,6 +124,6 @@ class DataHandler(object):
 
 if __name__ == "__main__":
     dh = DataHandler()
-    dh.read_network("networks/network1")
-    dh.read_network("networks/network2")
-    dh.generate_real_data([500, 500])
+    dh.read_network("networks/network1.csv")
+    dh.read_network("networks/network2.csv")
+    dh.generate_real_data([50, 50])

@@ -6,8 +6,10 @@ import numpy as np
 
 class SerialTVGL(TVGL):
 
-    def __init__(self, filename, blocks=10, processes=1):
-        super(SerialTVGL, self).__init__(filename, blocks, processes)
+    def __init__(self, filename, blocks=10,
+                 lambd=30, beta=4, processes=1):
+        super(SerialTVGL, self).__init__(filename, blocks,
+                                         lambd, beta, processes)
 
     def theta_update(self):
         for i in range(self.blocks):
@@ -36,9 +38,9 @@ class SerialTVGL(TVGL):
             a = self.thetas[i] - self.thetas[i-1] + self.u2s[i] - self.u1s[i-1]
             e = pf.group_lasso_penalty(a, 2*self.beta/self.rho)
             self.z1s[i-1] = 0.5*(self.thetas[i-1] + self.thetas[i]
-                                 + self.u1s[i] + self.u2s[i]) - 0.5*e
+                                 + self.u1s[i-1] + self.u2s[i]) - 0.5*e
             self.z2s[i] = 0.5*(self.thetas[i-1] + self.thetas[i]
-                               + self.u1s[i] + self.u2s[i]) + 0.5*e
+                               + self.u1s[i-1] + self.u2s[i]) + 0.5*e
 
     def u_update(self):
         for i in range(self.blocks):

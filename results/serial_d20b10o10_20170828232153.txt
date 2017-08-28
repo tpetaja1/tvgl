@@ -1,0 +1,19 @@
+# Information
+Run datetime: 2017-08-28 23:21:53
+Data file: synthetic_data/100x20_20170823212344.csv
+Algorithm type: serial
+Data dimension: 20
+Blocks: 10
+Observations in a block: 10
+Rho: 4.0
+Beta: 50
+Lambda: 20
+Processes used: 1
+
+# Results
+Algorithm run time: 41.4 seconds
+Iterations to complete: 5688
+
+Matching edge ratio (nonzeros): 0.874
+Temporal deviations ratio (max/mean): 7.877
+Temporal deviations: 0.003 0.003 0.000 0.002 1.000 0.023 0.081 0.019 0.012 

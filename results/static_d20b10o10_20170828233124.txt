@@ -1,0 +1,19 @@
+# Information
+Run datetime: 2017-08-28 23:31:24
+Data file: synthetic_data/100x20_20170823212344.csv
+Algorithm type: static
+Data dimension: 20
+Blocks: 10
+Observations in a block: 10
+Rho: 11
+Beta: 0
+Lambda: 20
+Processes used: 3
+
+# Results
+Algorithm run time: 0.721 seconds
+Iterations to complete: n/a
+
+Matching edge ratio (nonzeros): 0.853
+Temporal deviations ratio (max/mean): 1.468
+Temporal deviations: 0.748 0.614 0.684 0.629 1.000 0.696 0.580 0.648 0.534 

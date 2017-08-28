@@ -6,8 +6,10 @@ import mp_workers_multi as mp
 
 class MultiProTVGL(TVGL):
 
-    def __init__(self, filename, blocks=10, processes=2):
-        super(MultiProTVGL, self).__init__(filename, blocks, processes)
+    def __init__(self, filename, blocks=10,
+                 lambd=30, beta=4, processes=2):
+        super(MultiProTVGL, self).__init__(filename, blocks,
+                                           lambd, beta, processes)
 
     def theta_update(self):
         inputs = [(self.thetas[i], self.z0s[i], self.z1s[i], self.z2s[i],
