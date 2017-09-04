@@ -32,6 +32,8 @@ def mp_parallel_tvgl((thetas, z0s, z1s, z2s, u0s, u1s, u2s,
                 next_pipe.send((z2s[-1], u2s[-1]))
             if prev_pipe is not None:
                 received = prev_pipe.recv()
+                if received is None:
+                    break
                 z2s[0], u2s[0] = received
             for j, i in zip(indexes[:end], range(nn)):
                 a = (z0s[i] + z1s[i] + z2s[i] - u0s[i] - u1s[i] - u2s[i])/3
