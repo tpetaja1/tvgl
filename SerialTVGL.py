@@ -29,18 +29,21 @@ class SerialTVGL(TVGL):
         self.z1_z2_update()
 
     def z0_update(self):
-        for i in range(self.blocks):
-            self.z0s[i] = pf.soft_threshold_odd(self.thetas[i] + self.u0s[i],
-                                                self.lambd, self.rho)
+        self.z0s = [pf.soft_threshold_odd(
+            self.thetas[i] + self.u0s[i], self.lambd, self.rho)
+                    for i in range(self.blocks)]
 
     def z1_z2_update(self):
+        aa = [self.thetas[i] - self.thetas[i-1] + self.u2s[i] - self.u1s[i-1]
+              for i in range(1, self.blocks)]
+        ee = [pf.group_lasso_penalty(a, 2*self.beta/self.rho) for a in aa]
+        #ee = pf.group_lasso_penaltys(aa, 2*self.beta/self.rho)
         for i in range(1, self.blocks):
-            a = self.thetas[i] - self.thetas[i-1] + self.u2s[i] - self.u1s[i-1]
-            e = pf.group_lasso_penalty(a, 2*self.beta/self.rho)
-            self.z1s[i-1] = 0.5*(self.thetas[i-1] + self.thetas[i]
-                                 + self.u1s[i-1] + self.u2s[i]) - 0.5*e
-            self.z2s[i] = 0.5*(self.thetas[i-1] + self.thetas[i]
-                               + self.u1s[i-1] + self.u2s[i]) + 0.5*e
+        #    a = self.thetas[i] - self.thetas[i-1] + self.u2s[i] - self.u1s[i-1]
+        #    e = pf.group_lasso_penalty(a, 2*self.beta/self.rho)
+            summ = self.thetas[i-1] + self.thetas[i] + self.u1s[i-1] + self.u2s[i]
+            self.z1s[i-1] = 0.5*(summ - ee[i-1])
+            self.z2s[i] = 0.5*(summ + ee[i-1])
 
     def u_update(self):
         for i in range(self.blocks):

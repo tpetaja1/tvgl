@@ -16,6 +16,7 @@ class TVGL(object):
         self.real_thetas = [0] * self.blocks
         self.read_data(filename)
         self.rho = self.get_rho()
+        self.max_step = 0.1
         self.lambd = lambd
         self.beta = beta
         print "Rho: %s" % self.rho
@@ -78,34 +79,58 @@ class TVGL(object):
         dh = None
 
     def get_rho(self):
-        if self.obs % 3 == 0:
-            return self.obs / 3 + 1
-        else:
-            return np.ceil(float(self.obs) / float(3))
+        #if self.obs % 3 == 0:
+        #    return self.obs / 3 + 1
+        #else:
+        #    return np.ceil(float(self.obs) / float(3))
+        return float(self.obs + 0.1) / float(3)
+        #return 2*self.obs
+
+    def adjust_rho(self):
+        step = 1/float(self.nju*2)
+        step = max(self.max_step, step/1.1)
+        self.rho = float(2*self.obs*step)/float(3)
+        #self.rho = max(float(self.obs + 0.1) / float(3), self.rho/1.1)
+        #if 3*self.rho - self.obs <= 0.01:
+        #    return
+        #self.rho = (np.exp(float(-self.iteration)/100) + self.obs)/3
+        #if self.rho == self.max_rho:
+        #    return
+        #self.rho = min(self.rho * 1.1, self.max_rho)
+        self.nju = float(self.obs)/float(3*self.rho)
+        print "Rho: %s" % self.rho
+        print "Nju: %s" % self.nju
 
     def run_algorithm(self, max_iter=10000):
+        self.init_algorithm()
         self.iteration = 0
         stopping_criteria = False
         thetas_pre = []
         start_time = time.time()
         while self.iteration < max_iter and stopping_criteria is False:
-            if self.iteration == 20:
+            if self.iteration % 500 == 0 or self.iteration == 1:
+                print "\n*** Iteration %s ***" % self.iteration
+                print "Time passed: {0:.3g}s".format(time.time() - start_time)
+                print "Rho: %s" % self.rho
+                print "Nju: %s" % self.nju
+                print "Step: {0:.3f}".format(1/(2*self.nju))
+            if self.iteration % 500 == 0 or self.iteration == 1:
                 s_time = time.time()
             self.theta_update()
-            if self.iteration == 20:
-                print "Theta update: {0:.3g}".format(time.time() - s_time)
-            if self.iteration == 20:
+            if self.iteration % 500 == 0 or self.iteration == 1:
+                print "Theta update: {0:.3g}s".format(time.time() - s_time)
+            if self.iteration % 500 == 0 or self.iteration == 1:
                 s_time = time.time()
             self.z_update()
-            if self.iteration == 20:
-                print "Z-update: {0:.3g}".format(time.time() - s_time)
-            if self.iteration == 20:
+            if self.iteration % 500 == 0 or self.iteration == 1:
+                print "Z-update: {0:.3g}s".format(time.time() - s_time)
+            if self.iteration % 500 == 0 or self.iteration == 1:
                 s_time = time.time()
             self.u_update()
-            if self.iteration == 20:
-                print "U-update: {0:.3g}".format(time.time() - s_time)
+            if self.iteration % 500 == 0 or self.iteration == 1:
+                print "U-update: {0:.3g}s".format(time.time() - s_time)
             """ Check stopping criteria """
-            if self.iteration == 20:
+            if self.iteration % 500 == 0 or self.iteration == 1:
                 s_time = time.time()
             if self.iteration > 0:
                 fro_norm = 0
@@ -116,8 +141,8 @@ class TVGL(object):
                     stopping_criteria = True
             thetas_pre = list(self.thetas)
             self.iteration += 1
-            if self.iteration % 500 == 0:
-                print "Iteration %s" % self.iteration
+            #print "iter %s" % self.iteration
+            #self.adjust_rho()
         self.run_time = "{0:.3g}".format(time.time() - start_time)
         self.final_tuning(stopping_criteria, max_iter)
 
@@ -133,13 +158,16 @@ class TVGL(object):
     def terminate_pools(self):
         pass
 
+    def init_algorithm(self):
+        pass
+
     def final_tuning(self, stopping_criteria, max_iter):
         self.thetas = [np.round(theta, 3) for theta in self.thetas]
         self.terminate_pools()
         if stopping_criteria:
-            print "Iterations to complete: %s" % self.iteration
+            print "\nIterations to complete: %s" % self.iteration
         else:
-            print "Max iterations (%s) reached" % max_iter
+            print "\nMax iterations (%s) reached" % max_iter
 
     def temporal_deviations(self):
         deviations = np.zeros(self.blocks - 1)
