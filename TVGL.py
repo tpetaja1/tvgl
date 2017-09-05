@@ -37,8 +37,6 @@ class TVGL(object):
             for i, line in enumerate(f):
                 if comment in line:
                     comment_count += 1
-                    if i == 1:
-                        self.generate_real_thetas(line, splitter)
                 else:
                     if self.dimension is None:
                         self.dimension = len(line.split(splitter))
@@ -53,6 +51,8 @@ class TVGL(object):
             count = 0
             for i, line in enumerate(f):
                 if comment in line:
+                    if i == 1:
+                        self.generate_real_thetas(line, splitter)
                     continue
                 lst.append([float(x)
                             for x in np.array(line.strip().split(splitter))])
@@ -72,7 +72,7 @@ class TVGL(object):
         for network_info in infos:
             filename = network_info.split(":")[0].strip("#").strip()
             datacount = network_info.split(":")[1].strip()
-            sub_blocks = int(datacount)/self.blocks
+            sub_blocks = int(datacount)/self.obs
             for i in range(sub_blocks):
                 dh.read_network(filename, inversion=False)
         self.real_thetas = dh.inverse_sigmas
