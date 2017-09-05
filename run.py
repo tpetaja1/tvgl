@@ -6,7 +6,7 @@ from SerialTVGL import SerialTVGL
 from AsyncProTVGL import AsyncProTVGL
 from MultiProTVGL import MultiProTVGL
 from ProcTVGL import ProcTVGL
-from LastTVGL import LastTVGL
+#from LastTVGL import LastTVGL
 from ParallelTVGL import ParallelTVGL
 from StaticGL import StaticGL
 
@@ -32,9 +32,9 @@ if __name__ == "__main__" and len(sys.argv) > 1:
     elif algo_type == "proc":
         algorithm = ProcTVGL(filename, blocks,
                              lambd, beta, processes=int(sys.argv[6]))
-    elif algo_type == "last":
-        algorithm = LastTVGL(filename, blocks,
-                             lambd, beta, processes=int(sys.argv[6]))
+#    elif algo_type == "last":
+#        algorithm = LastTVGL(filename, blocks,
+#                             lambd, beta, processes=int(sys.argv[6]))
     elif algo_type == "parallel":
         algorithm = ParallelTVGL(filename, blocks,
                                  lambd, beta, processes=int(sys.argv[6]))
@@ -51,8 +51,10 @@ if __name__ == "__main__" and len(sys.argv) > 1:
     algorithm.temporal_deviations()
     print "Temp deviations: "
     print algorithm.deviations
-    algorithm.correct_nonzero_elements()
-    print "Total nonzeros: %s" % algorithm.real_nonzeros
-    print "Nonzero ratio: %s" % algorithm.nonzero_ratio
+    algorithm.correct_edges()
+    print "Total Edges: %s" % algorithm.real_edges
+    print "Matching Edges: %s" % algorithm.matching_edges
+    print "Total Zeros: %s" % algorithm.real_edgeless
+    print "False Edges: %s" % algorithm.false_edges
     datahandler.write_results(filename, algo_type, algorithm)
     print "Execution time: %s seconds" % (time.time() - start_time)

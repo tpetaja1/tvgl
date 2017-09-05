@@ -179,18 +179,23 @@ class TVGL(object):
         self.dev_ratio = float(max(deviations))/float(np.mean(deviations))
         print "Temp deviations ratio: {0:.3g}".format(self.dev_ratio)
 
-    def correct_nonzero_elements(self):
-        self.real_nonzeros = 0
-        self.matching_nonzeros = 0
+    def correct_edges(self):
+        self.real_edges = 0
+        self.real_edgeless = 0
+        self.matching_edges = 0
+        self.false_edges = 0
         for real_network, network in zip(self.real_thetas, self.thetas):
-            for i in range(self.dimension):
-                for j in range(self.dimension):
+            for i in range(self.dimension - 1):
+                for j in range(i + 1, self.dimension):
                     if real_network[i, j] != 0:
-                        self.real_nonzeros += 1
+                        self.real_edges += 1
                         if network[i, j] != 0:
-                            self.matching_nonzeros += 1
+                            self.matching_edges += 1
                     elif real_network[i, j] == 0:
-                        if network[i, j] == 0:
-                            self.matching_nonzeros += 1
-        self.nonzero_ratio = float(self.matching_nonzeros)/float(
-            self.dimension*self.dimension*self.blocks)
+                        self.real_edgeless += 1
+                        if network[i, j] != 0:
+                            self.false_edges += 1
+        self.matching_edges_ratio = float(self.matching_edges)/float(
+            self.real_edges)
+        self.false_edges_ratio = float(self.false_edges)/float(
+            self.real_edgeless)

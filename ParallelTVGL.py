@@ -6,7 +6,7 @@ import multiprocessing
 import time
 import traceback
 
-MAX_ITER = 5000
+MAX_ITER = 10000
 
 
 def mp_parallel_tvgl((thetas, z0s, z1s, z2s, u0s, u1s, u2s,
@@ -76,17 +76,20 @@ def mp_parallel_tvgl((thetas, z0s, z1s, z2s, u0s, u1s, u2s,
                 for i in range(nn):
                     dif = thetas[i] - thetas_pre[i]
                     fro_norm += np.linalg.norm(dif)
-                if fro_norm < 1e-5:
+                if fro_norm < 1e-4:
                     stopping_criteria[proc_index] = True
             if all(criteria is True for criteria in stopping_criteria):
-                if next_pipe is not None:
-                    next_pipe.send(None)
-                if prev_pipe is not None:
-                    prev_pipe.send(None)
                 break
             thetas_pre = list(thetas)
             iteration += 1
+            if iteration % 500 == 0 and proc_index == 0:
+                print "*** Iteration: %s ***\n" % iteration
+        if next_pipe is not None:
+            next_pipe.send(None)
+        if prev_pipe is not None:
+            prev_pipe.send(None)
         out_queue.put((final_thetas, iteration))
+        print "Process %s finished" % proc_index
     except Exception as e:
         traceback.print_exc()
         raise e
@@ -102,7 +105,7 @@ class ParallelTVGL(TVGL):
         if self.processes > self.blocks:
             self.processes = self.blocks
         self.chunk = int(np.round(self.blocks/float(self.processes)))
-        self.iteration = "n/a"
+        print "Processes: %s" % self.processes
 
     def init_algorithm(self):
         self.results = multiprocessing.JoinableQueue()

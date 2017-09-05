@@ -93,9 +93,9 @@ class DataHandler(object):
 
     def write_results(self, datafile, alg_type, alg):
         run_time = datetime.datetime.now()
-        results_name = "results/%s_d%sb%so%s_%s.txt" % (
-            alg_type, alg.dimension, alg.blocks, alg.obs,
-            run_time.strftime("%Y%m%d%H%M%S"))
+        results_name = "results/%s_di%sbl%sob%sla%sbe%s_%s.txt" % (
+            alg_type, alg.dimension, alg.blocks, alg.obs, alg.lambd,
+            alg.beta, run_time.strftime("%Y%m%d%H%M%S"))
         with open(results_name, "w") as f:
             f.write("# Information\n")
             f.write("Run datetime: %s\n" %
@@ -108,12 +108,18 @@ class DataHandler(object):
             f.write("Rho: %s\n" % alg.rho)
             f.write("Beta: %s\n" % alg.beta)
             f.write("Lambda: %s\n" % alg.lambd)
-            f.write("Processes used: %s\n\n" % alg.processes)
+            f.write("Processes used: %s\n" % alg.processes)
+            f.write("Total edges: %s\n" % alg.real_edges)
+            f.write("Total edgeless: %s\n\n" % alg.real_edgeless)
             f.write("# Results\n")
             f.write("Algorithm run time: %s seconds\n" % alg.run_time)
             f.write("Iterations to complete: %s\n\n" % alg.iteration)
-            f.write("Matching edge ratio (nonzeros): {0:.3f}\n"
-                    .format(alg.nonzero_ratio))
+            f.write("Matching edge ratio: {0:.3f}"
+                    .format(alg.matching_edges_ratio))
+            f.write("    (Matching edges: %s)\n" % alg.matching_edges)
+            f.write("False edge ratio: {0:.3f}"
+                    .format(alg.false_edges_ratio))
+            f.write("    (False edges: %s)\n" % alg.false_edges)
             f.write("Temporal deviations ratio (max/mean): {0:.3f}\n"
                     .format(alg.dev_ratio))
             f.write("Temporal deviations: ")
