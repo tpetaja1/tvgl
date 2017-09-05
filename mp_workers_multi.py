@@ -35,8 +35,8 @@ def z1_z2_update((theta, theta_pre, u1, u1_pre, u2, beta, rho)):
     try:
         a = theta - theta_pre + u2 - u1_pre
         e = pf.group_lasso_penalty(a, 2*beta/rho)
-        z1 = 0.5*(theta_pre + theta + u1 + u2) - 0.5*e
-        z2 = 0.5*(theta_pre + theta + u1 + u2) + 0.5*e
+        z1 = 0.5*(theta_pre + theta + u1_pre + u2) - 0.5*e
+        z2 = 0.5*(theta_pre + theta + u1_pre + u2) + 0.5*e
     except Exception as e:
         traceback.print_exc()
         raise e

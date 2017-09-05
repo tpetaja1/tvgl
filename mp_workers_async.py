@@ -15,9 +15,9 @@ def z1_z2_update(thetas, z1s, z2s, u1s, u2s, beta, rho, blocks):
             a = thetas[i] - thetas[i-1] + u2s[i] - u1s[i-1]
             e = pf.group_lasso_penalty(a, 2*beta/rho)
             z1s[i-1] = 0.5*(thetas[i-1] + thetas[i]
-                            + u1s[i] + u2s[i]) - 0.5*e
+                            + u1s[i-i] + u2s[i]) - 0.5*e
             z2s[i] = 0.5*(thetas[i-1] + thetas[i]
-                          + u1s[i] + u2s[i]) + 0.5*e
+                          + u1s[i-i] + u2s[i]) + 0.5*e
     except Exception as e:
         traceback.print_exc()
         raise e
