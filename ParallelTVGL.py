@@ -59,7 +59,7 @@ def mp_parallel_tvgl((thetas, z0s, z1s, z2s, u0s, u1s, u2s,
             """ Z1-Z2 Update """
             for i in range(1, n):
                 a = thetas[i] - thetas[i-1] + u2s[i] - u1s[i-1]
-                e = pf.group_lasso_penalty(a, 2*beta/rho)
+                e = pf.group_lasso_penalty(a, beta, rho)
                 summ = thetas[i] + thetas[i-1] + u2s[i] + u1s[i-1]
                 z1s[i-1] = 0.5*(summ - e)
                 z2s[i] = 0.5*(summ + e)
@@ -97,11 +97,8 @@ def mp_parallel_tvgl((thetas, z0s, z1s, z2s, u0s, u1s, u2s,
 
 class ParallelTVGL(TVGL):
 
-    def __init__(self, filename, blocks=10,
-                 lambd=20, beta=20, processes=1):
-        super(ParallelTVGL, self).__init__(filename,
-                                           blocks, lambd,
-                                           beta, processes)
+    def __init__(self, *args, **kwargs):
+        super(ParallelTVGL, self).__init__(*args, **kwargs)
         if self.processes > self.blocks:
             self.processes = self.blocks
         self.chunk = int(np.round(self.blocks/float(self.processes)))

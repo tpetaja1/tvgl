@@ -8,9 +8,11 @@ class TVGL(object):
 
     np.set_printoptions(precision=3)
 
-    def __init__(self, filename, blocks, lambd, beta, processes):
+    def __init__(self, filename, blocks, lambd, beta,
+                 processes, penalty_function="Group Lasso"):
         self.processes = processes
         self.blocks = blocks
+        self.penalty_function = penalty_function
         self.dimension = None
         self.emp_cov_mat = [0] * self.blocks
         self.real_thetas = [0] * self.blocks
@@ -30,6 +32,7 @@ class TVGL(object):
         self.u1s = [np.zeros((self.dimension, self.dimension))] * self.blocks
         self.u2s = [np.zeros((self.dimension, self.dimension))] * self.blocks
         self.nju = float(self.obs)/float(3*self.rho)
+        self.e = 1e-5
 
     def read_data(self, filename, comment="#", splitter=","):
         with open(filename, "r") as f:
@@ -137,7 +140,7 @@ class TVGL(object):
                 for i in range(self.blocks):
                     dif = self.thetas[i] - thetas_pre[i]
                     fro_norm += np.linalg.norm(dif)
-                if fro_norm < 1e-5:
+                if fro_norm < self.e:
                     stopping_criteria = True
             thetas_pre = list(self.thetas)
             self.iteration += 1
@@ -182,20 +185,23 @@ class TVGL(object):
     def correct_edges(self):
         self.real_edges = 0
         self.real_edgeless = 0
-        self.matching_edges = 0
-        self.false_edges = 0
+        self.correct_positives = 0
+        self.all_positives = 0
         for real_network, network in zip(self.real_thetas, self.thetas):
             for i in range(self.dimension - 1):
                 for j in range(i + 1, self.dimension):
                     if real_network[i, j] != 0:
                         self.real_edges += 1
                         if network[i, j] != 0:
-                            self.matching_edges += 1
+                            self.correct_positives += 1
+                            self.all_positives += 1
                     elif real_network[i, j] == 0:
                         self.real_edgeless += 1
                         if network[i, j] != 0:
-                            self.false_edges += 1
-        self.matching_edges_ratio = float(self.matching_edges)/float(
+                            self.all_positives += 1
+        self.precision = float(self.correct_positives)/float(
+            self.all_positives)
+        self.recall = float(self.correct_positives)/float(
             self.real_edges)
-        self.false_edges_ratio = float(self.false_edges)/float(
-            self.real_edgeless)
+        self.f1score = 2*(self.precision*self.recall)/float(
+            self.precision + self.recall)

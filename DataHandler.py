@@ -101,7 +101,8 @@ class DataHandler(object):
             f.write("Run datetime: %s\n" %
                     run_time.strftime("%Y-%m-%d %H:%M:%S"))
             f.write("Data file: %s\n" % datafile)
-            f.write("Algorithm type: %s\n" % alg_type)
+            f.write("Algorithm type: %s\n" % alg.__class__.__name__)
+            f.write("Penalty function: %s\n" % alg.penalty_function)
             f.write("Data dimension: %s\n" % alg.dimension)
             f.write("Blocks: %s\n" % alg.blocks)
             f.write("Observations in a block: %s\n" % alg.obs)
@@ -114,17 +115,22 @@ class DataHandler(object):
             f.write("# Results\n")
             f.write("Algorithm run time: %s seconds\n" % alg.run_time)
             f.write("Iterations to complete: %s\n\n" % alg.iteration)
-            f.write("Matching edge ratio: {0:.3f}"
-                    .format(alg.matching_edges_ratio))
-            f.write("    (Matching edges: %s)\n" % alg.matching_edges)
-            f.write("False edge ratio: {0:.3f}"
-                    .format(alg.false_edges_ratio))
-            f.write("    (False edges: %s)\n" % alg.false_edges)
-            f.write("Temporal deviations ratio (max/mean): {0:.3f}\n"
-                    .format(alg.dev_ratio))
+            f.write("Correct positive edges: %s\n" % alg.correct_positives)
+            f.write("All positives: %s\n" % alg.all_positives)
+            f.write("F1 Score: {0:.3f}\n"
+                    .format(alg.f1score))
+            try:
+                f.write("Temporal deviations ratio (max/mean): {0:.3f}\n"
+                        .format(alg.dev_ratio))
+            except ValueError:
+                f.write("Temporal deviations ratio (max/mean): %s\n"
+                        % alg.dev_ratio)
             f.write("Temporal deviations: ")
             for dev in alg.deviations:
-                f.write("{0:.3f} ".format(dev))
+                try:
+                    f.write("{0:.3f} ".format(dev))
+                except ValueError:
+                    f.write("%s" % dev)
             f.write("\n")
 
 
