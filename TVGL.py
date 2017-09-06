@@ -33,6 +33,7 @@ class TVGL(object):
         self.u2s = [np.zeros((self.dimension, self.dimension))] * self.blocks
         self.nju = float(self.obs)/float(3*self.rho)
         self.e = 1e-5
+        self.roundup = 1
 
     def read_data(self, filename, comment="#", splitter=","):
         with open(filename, "r") as f:
@@ -165,7 +166,7 @@ class TVGL(object):
         pass
 
     def final_tuning(self, stopping_criteria, max_iter):
-        self.thetas = [np.round(theta, 3) for theta in self.thetas]
+        self.thetas = [np.round(theta, self.roundup) for theta in self.thetas]
         self.terminate_pools()
         if stopping_criteria:
             print "\nIterations to complete: %s" % self.iteration

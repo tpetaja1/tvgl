@@ -1,0 +1,24 @@
+# Information
+Run datetime: 2017-09-07 00:10:12
+Data file: synthetic_data/1000x20_20170823203622.csv
+Algorithm type: DynamicGL
+Penalty function: n/a
+Data dimension: 20
+Blocks: 50
+Observations in a block: 20
+Rho: 21
+Beta: 0
+Lambda: 22
+Processes used: 25
+Total edges: 1000
+Total edgeless: 8500
+
+# Results
+Algorithm run time: 0.555 seconds
+Iterations to complete: n/a
+
+Correct positive edges: 406
+All positives: 667
+F1 Score: 0.487
+Temporal deviations ratio (max/mean): 2.194
+Temporal deviations: 0.666 0.409 0.563 0.261 0.433 0.503 0.460 0.433 0.396 0.506 0.475 0.383 0.676 0.581 0.519 0.566 0.405 0.449 0.453 0.346 0.542 0.445 0.489 0.535 1.000 0.441 0.437 0.445 0.581 0.485 0.365 0.542 0.478 0.413 0.478 0.396 0.482 0.456 0.441 0.482 0.341 0.392 0.355 0.274 0.226 0.437 0.280 0.325 0.286 

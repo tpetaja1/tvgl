@@ -38,7 +38,7 @@ if __name__ == "__main__" and len(sys.argv) > 1:
     print "Running algorithm..."
     algorithm.run_algorithm()
     print algorithm.thetas[0]
-    print algorithm.thetas[-1]
+    #print algorithm.thetas[-1]
     algorithm.temporal_deviations()
     print "Temp deviations: "
     print algorithm.deviations

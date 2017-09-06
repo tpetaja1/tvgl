@@ -64,4 +64,4 @@ class DynamicGL(TVGL):
         p.close()
         p.join()
         self.run_time = '{0:.3g}'.format(time.time() - start_time)
-        self.thetas = [np.round(theta, 3) for theta in self.thetas]
+        self.thetas = [np.round(theta, self.roundup) for theta in self.thetas]

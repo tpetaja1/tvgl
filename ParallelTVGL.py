@@ -89,7 +89,7 @@ def mp_parallel_tvgl((thetas, z0s, z1s, z2s, u0s, u1s, u2s,
         if prev_pipe is not None:
             prev_pipe.send(None)
         out_queue.put((final_thetas, iteration))
-        print "Process %s finished" % proc_index
+        #print "Process %s finished" % proc_index
     except Exception as e:
         traceback.print_exc()
         raise e
@@ -192,4 +192,4 @@ class ParallelTVGL(TVGL):
         self.iteration = iteration
         print self.iteration
         self.run_time = '{0:.3g}'.format(time.time() - start_time)
-        self.thetas = [np.round(theta, 3) for theta in self.thetas]
+        self.thetas = [np.round(theta, self.roundup) for theta in self.thetas]
