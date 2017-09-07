@@ -35,7 +35,7 @@ class TVGL(object):
         self.e = 1e-5
         self.roundup = 1
 
-    def read_data(self, filename, comment="#", splitter=","):
+    def read_data(self, filename, comment="#", splitter=",", datecolumn=True):
         with open(filename, "r") as f:
             comment_count = 0
             for i, line in enumerate(f):
@@ -43,7 +43,10 @@ class TVGL(object):
                     comment_count += 1
                 else:
                     if self.dimension is None:
-                        self.dimension = len(line.split(splitter))
+                        if datecolumn:
+                            self.dimension = len(line.split(splitter)) - 1
+                        else:
+                            self.dimension = len(line.split(splitter))
         datasamples = i + 1 - comment_count
         print "Total data samples: %s" % datasamples
         self.obs = datasamples / self.blocks
@@ -58,8 +61,14 @@ class TVGL(object):
                     if i == 1:
                         self.generate_real_thetas(line, splitter)
                     continue
-                lst.append([float(x)
-                            for x in np.array(line.strip().split(splitter))])
+                if datecolumn:
+                    lst.append([float(x)
+                                for x in np.array(line.strip().
+                                                  split(splitter)[1:])])
+                else:
+                    lst.append([float(x)
+                                for x in np.array(line.strip().
+                                                  split(splitter))])
                 count += 1
                 if count == self.obs:
                     datablck = np.array(lst)

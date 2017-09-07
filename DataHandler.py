@@ -91,6 +91,65 @@ class DataHandler(object):
                 line = line[1:]
                 new_file.write("%s\n" % line)
 
+    def write_network_results(self, datafile, alg_type, alg, splitter=","):
+        run_time = datetime.datetime.now()
+        results_name = "network_results/%s_di%sbl%sob%sla%sbe%s_%s.csv" % (
+            alg_type, alg.dimension, alg.blocks, alg.obs, alg.lambd,
+            alg.beta, run_time.strftime("%Y%m%d%H%M%S"))
+        """ Read features """
+        with open(datafile, "r") as f:
+            for i, line in enumerate(f):
+                if i == 0:
+                    feats = line.strip().split(splitter)[1:]
+                    break
+        features = {}
+        for i, feat in enumerate(feats):
+            features[i] = feat
+        """ Write Results """
+        with open(results_name, "w") as f:
+            f.write("# Information\n")
+            f.write("Run datetime, %s\n" %
+                    run_time.strftime("%Y-%m-%d %H:%M:%S"))
+            f.write("Data file, %s\n" % datafile)
+            f.write("Algorithm type, %s\n" % alg.__class__.__name__)
+            f.write("Penalty function, %s\n" % alg.penalty_function)
+            f.write("Data dimension, %s\n" % alg.dimension)
+            f.write("Blocks, %s\n" % alg.blocks)
+            f.write("Observations in a block, %s\n" % alg.obs)
+            f.write("Rho, %s\n" % alg.rho)
+            f.write("Beta, %s\n" % alg.beta)
+            f.write("Lambda, %s\n" % alg.lambd)
+            f.write("Processes used, %s\n" % alg.processes)
+            f.write("\n")
+            f.write("# Results\n")
+            f.write("Algorithm run time, %s seconds\n" % alg.run_time)
+            f.write("Iterations to complete, %s\n\n" % alg.iteration)
+            try:
+                f.write("Temporal deviations ratio (max/mean), {0:.3f}\n"
+                        .format(alg.dev_ratio))
+            except ValueError:
+                f.write("Temporal deviations ratio (max/mean), %s\n"
+                        % alg.dev_ratio)
+            f.write("Temporal deviations ")
+            for dev in alg.deviations:
+                try:
+                    f.write(",{0:.3f}".format(dev))
+                except ValueError:
+                    f.write(",%s" % dev)
+            """ Write networks """
+            f.write("\n\n#Networks:\n\n")
+            for k in range(alg.blocks):
+                f.write("Block %s\n " % k)
+                for feat in feats:
+                    f.write("," + feat)
+                f.write("\n")
+                for i in range(alg.dimension):
+                    f.write(features[i])
+                    for j in range(alg.dimension):
+                        f.write("," + str(alg.thetas[k][i, j]))
+                    f.write("\n")
+                f.write("\n\n")
+
     def write_results(self, datafile, alg_type, alg):
         run_time = datetime.datetime.now()
         results_name = "results/%s_di%sbl%sob%sla%sbe%s_%s.txt" % (
@@ -111,7 +170,8 @@ class DataHandler(object):
             f.write("Lambda: %s\n" % alg.lambd)
             f.write("Processes used: %s\n" % alg.processes)
             f.write("Total edges: %s\n" % alg.real_edges)
-            f.write("Total edgeless: %s\n\n" % alg.real_edgeless)
+            f.write("Total edgeless: %s\n" % alg.real_edgeless)
+            f.write("\n")
             f.write("# Results\n")
             f.write("Algorithm run time: %s seconds\n" % alg.run_time)
             f.write("Iterations to complete: %s\n\n" % alg.iteration)

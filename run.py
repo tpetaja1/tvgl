@@ -9,6 +9,7 @@ from StaticGL import StaticGL
 
 
 if __name__ == "__main__" and len(sys.argv) > 1:
+    synthetic = False
     datahandler = DataHandler()
     start_time = time.time()
     algo_type = sys.argv[1]
@@ -42,13 +43,16 @@ if __name__ == "__main__" and len(sys.argv) > 1:
     algorithm.temporal_deviations()
     print "Temp deviations: "
     print algorithm.deviations
-    algorithm.correct_edges()
-    print "Total Edges: %s" % algorithm.real_edges
-    print "Correct Edges: %s" % algorithm.correct_positives
-    print "Total Zeros: %s" % algorithm.real_edgeless
-    false_edges = algorithm.all_positives - algorithm.correct_positives
-    print "False Edges: %s" % false_edges
-    print "F1 Score: %s" % algorithm.f1score
-    datahandler.write_results(filename, algo_type, algorithm)
+    if synthetic:
+        algorithm.correct_edges()
+        print "Total Edges: %s" % algorithm.real_edges
+        print "Correct Edges: %s" % algorithm.correct_positives
+        print "Total Zeros: %s" % algorithm.real_edgeless
+        false_edges = algorithm.all_positives - algorithm.correct_positives
+        print "False Edges: %s" % false_edges
+        print "F1 Score: %s" % algorithm.f1score
+        datahandler.write_results(filename, algo_type, algorithm)
+    else:
+        datahandler.write_network_results(filename, algo_type, algorithm)
     print "Algorithm run time: %s seconds" % (algorithm.run_time)
     print "Execution time: %s seconds" % (time.time() - start_time)
