@@ -12,7 +12,7 @@ MAX_ITER = 10000
 def mp_parallel_tvgl((thetas, z0s, z1s, z2s, u0s, u1s, u2s,
                       emp_cov_mat, lambd, beta, rho, nju,
                       indexes, out_queue, prev_pipe, next_pipe,
-                      proc_index, stopping_criteria),
+                      proc_index, stopping_criteria, pen_func),
                      last=False):
     try:
         iteration = 0
@@ -38,7 +38,8 @@ def mp_parallel_tvgl((thetas, z0s, z1s, z2s, u0s, u1s, u2s,
             for j, i in zip(indexes[:end], range(nn)):
                 a = (z0s[i] + z1s[i] + z2s[i] - u0s[i] - u1s[i] - u2s[i])/3
                 at = a.transpose()
-                m = nju*(a + at)/2 - emp_cov_mat[i]
+                #m = nju*(a + at)/2 - emp_cov_mat[i]
+                m = (a + at)/(2 * nju) - emp_cov_mat[i]
                 d, q = np.linalg.eig(m)
                 qt = q.transpose()
                 sqrt_matrix = np.sqrt(d**2 + 4/nju*np.ones(dimension))
@@ -59,7 +60,7 @@ def mp_parallel_tvgl((thetas, z0s, z1s, z2s, u0s, u1s, u2s,
             """ Z1-Z2 Update """
             for i in range(1, n):
                 a = thetas[i] - thetas[i-1] + u2s[i] - u1s[i-1]
-                e = pf.group_lasso_penalty(a, beta, rho)
+                e = getattr(pf, pen_func)(a, beta, rho)
                 summ = thetas[i] + thetas[i-1] + u2s[i] + u1s[i-1]
                 z1s[i-1] = 0.5*(summ - e)
                 z2s[i] = 0.5*(summ + e)
@@ -131,7 +132,8 @@ class ParallelTVGL(TVGL):
                                                    None,
                                                    self.pipes[i][0],
                                                    i,
-                                                   stopping_criteria),))
+                                                   stopping_criteria,
+                                                   self.penalty_function),))
             elif i == self.processes - 1:
                 p = multiprocessing.Process(target=mp_parallel_tvgl,
                                             args=((self.thetas[self.chunk * i:],
@@ -151,7 +153,8 @@ class ParallelTVGL(TVGL):
                                                    self.pipes[i-1][1],
                                                    None,
                                                    i,
-                                                   stopping_criteria), True))
+                                                   stopping_criteria,
+                                                   self.penalty_function), True))
             else:
                 p = multiprocessing.Process(target=mp_parallel_tvgl,
                                             args=((self.thetas[self.chunk * i:self.chunk*(i+1)+1],
@@ -171,7 +174,8 @@ class ParallelTVGL(TVGL):
                                                    self.pipes[i-1][1],
                                                    self.pipes[i][0],
                                                    i,
-                                                   stopping_criteria),))
+                                                   stopping_criteria,
+                                                   self.penalty_function),))
             self.procs.append(p)
 
     def run_algorithm(self, max_iter=10000):
@@ -190,6 +194,11 @@ class ParallelTVGL(TVGL):
         for p in self.procs:
             p.join()
         self.iteration = iteration
-        print self.iteration
+        #print self.iteration
         self.run_time = '{0:.3g}'.format(time.time() - start_time)
-        self.thetas = [np.round(theta, self.roundup) for theta in self.thetas]
+        self.final_tuning(True, MAX_ITER)
+        #self.thetas = [np.round(theta, self.roundup) for theta in self.thetas]
+
+    def terminate_pools(self):
+        for p in self.procs:
+            p.terminate()

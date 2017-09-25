@@ -139,7 +139,15 @@ class DataHandler(object):
             """ Write networks """
             f.write("\n\n#Networks:\n\n")
             for k in range(alg.blocks):
-                f.write("Block %s\n " % k)
+                f.write("Block %s," % k)
+                f.write(alg.blockdates[k] + "\n")
+                if k > 0:
+                    f.write("Dev to prev,")
+                    f.write("{0:.3f},".format(alg.deviations[k-1]))
+                if k < alg.blocks - 1:
+                    f.write("Dev to next,")
+                    f.write("{0:.3f}".format(alg.deviations[k]))
+                f.write("\n")
                 for feat in feats:
                     f.write("," + feat)
                 f.write("\n")

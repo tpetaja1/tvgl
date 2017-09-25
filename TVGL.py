@@ -9,13 +9,17 @@ class TVGL(object):
     np.set_printoptions(precision=3)
 
     def __init__(self, filename, blocks, lambd, beta,
-                 processes, penalty_function="Group Lasso"):
+                 processes, penalty_function="group_lasso",
+                 datecolumn=True):
+        self.datecolumn = datecolumn
         self.processes = processes
         self.blocks = blocks
         self.penalty_function = penalty_function
         self.dimension = None
         self.emp_cov_mat = [0] * self.blocks
         self.real_thetas = [0] * self.blocks
+        if self.datecolumn:
+            self.blockdates = [0] * self.blocks
         self.read_data(filename)
         self.rho = self.get_rho()
         self.max_step = 0.1
@@ -35,7 +39,7 @@ class TVGL(object):
         self.e = 1e-5
         self.roundup = 1
 
-    def read_data(self, filename, comment="#", splitter=",", datecolumn=True):
+    def read_data(self, filename, comment="#", splitter=","):
         with open(filename, "r") as f:
             comment_count = 0
             for i, line in enumerate(f):
@@ -43,7 +47,7 @@ class TVGL(object):
                     comment_count += 1
                 else:
                     if self.dimension is None:
-                        if datecolumn:
+                        if self.datecolumn:
                             self.dimension = len(line.split(splitter)) - 1
                         else:
                             self.dimension = len(line.split(splitter))
@@ -61,7 +65,9 @@ class TVGL(object):
                     if i == 1:
                         self.generate_real_thetas(line, splitter)
                     continue
-                if datecolumn:
+                if count == 0 and self.datecolumn is True:
+                    start_date = line.strip().split(splitter)[0]
+                if self.datecolumn:
                     lst.append([float(x)
                                 for x in np.array(line.strip().
                                                   split(splitter)[1:])])
@@ -71,6 +77,9 @@ class TVGL(object):
                                                   split(splitter))])
                 count += 1
                 if count == self.obs:
+                    if self.datecolumn:
+                        end_date = line.strip().split(splitter)[0]
+                        self.blockdates[block] = start_date + " - " + end_date
                     datablck = np.array(lst)
                     tp = datablck.transpose()
                     self.emp_cov_mat[block] = np.real(
@@ -176,20 +185,37 @@ class TVGL(object):
 
     def final_tuning(self, stopping_criteria, max_iter):
         self.thetas = [np.round(theta, self.roundup) for theta in self.thetas]
+        #self.only_true_false_edges()
         self.terminate_pools()
         if stopping_criteria:
             print "\nIterations to complete: %s" % self.iteration
         else:
             print "\nMax iterations (%s) reached" % max_iter
 
+    def only_true_false_edges(self):
+        for k in range(self.blocks):
+            for i in range(self.dimension - 1):
+                for j in range(i + 1, self.dimension):
+                    if self.thetas[k][i, j] != 0:
+                        self.thetas[k][i, j] = 1
+                        self.thetas[k][j, i] = 1
+                    else:
+                        self.thetas[k][i, j] = 0
+                        self.thetas[k][j, i] = 0
+
     def temporal_deviations(self):
         deviations = np.zeros(self.blocks - 1)
         for i in range(0, self.blocks - 1):
             dif = self.thetas[i+1] - self.thetas[i]
+            np.fill_diagonal(dif, 0)
             deviations[i] = np.linalg.norm(dif)
         print deviations
-        self.deviations = deviations/max(deviations)
-        self.dev_ratio = float(max(deviations))/float(np.mean(deviations))
+        try:
+            self.deviations = deviations/max(deviations)
+            self.dev_ratio = float(max(deviations))/float(np.mean(deviations))
+        except ZeroDivisionError:
+            self.deviations = deviations
+            self.dev_ratio = 0
         print "Temp deviations ratio: {0:.3g}".format(self.dev_ratio)
 
     def correct_edges(self):

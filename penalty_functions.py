@@ -5,7 +5,9 @@ import numpy as np
 def soft_threshold_odd(a, lambd, rho):
     parameter = lambd/rho
     dimension = np.shape(a)[0]
-    e = np.eye(dimension, dimension)
+    e = np.eye(dimension)
+    # = np.zeros((dimension, dimension))
+    #p.fill_diagonal(e, np.diag(a))
     for i in range(dimension - 1):
         for j in range(i + 1, dimension):
             if abs(a[i, j]) > parameter:
@@ -31,7 +33,19 @@ def soft_threshold_odds(aa, lambd, rho):
     return ee
 
 
-def group_lasso_penalty(a, beta, rho):
+def element_wise(a, beta, rho):
+    nju = 2*beta/rho
+    dimension = np.shape(a)[0]
+    e = np.zeros((dimension, dimension))
+    for i in range(dimension):
+        for j in range(dimension):
+            if abs(a[i, j]) > nju:
+                e[i, j] = np.sign(a[i, j])*(
+                    abs(a[i, j]) - nju)
+    return e
+
+
+def group_lasso(a, beta, rho):
     nju = 2*beta/rho
     dimension = np.shape(a)[0]
     e = np.zeros((dimension, dimension))
