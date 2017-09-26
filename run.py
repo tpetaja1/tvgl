@@ -14,6 +14,7 @@ if __name__ == "__main__" and len(sys.argv) > 1:
     #  2. Penalty function
     #     1 = "element_wise"
     #     2 = "group_lasso"
+    #     3 = "perturbed_node
     #  3. Number of blocks to be created
     #  4. lambda
     #  5. beta
@@ -34,6 +35,8 @@ if __name__ == "__main__" and len(sys.argv) > 1:
         penalty_function = "element_wise"
     elif sys.argv[2] == "2":
         penalty_function = "group_lasso"
+    elif sys.argv[2] == "3":
+        penalty_function = "perturbed_node"
     algo_type = "parallel"
     blocks = int(sys.argv[3])
     lambd = float(sys.argv[4])

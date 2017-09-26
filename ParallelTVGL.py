@@ -73,12 +73,21 @@ def mp_parallel_tvgl((thetas, z0s, z1s, z2s, u0s, u1s, u2s,
                 z0s[i] = pf.soft_threshold_odd(thetas[i] + u0s[i], lambd, rho)
 
             """ Z1-Z2 Update """
-            for i in range(1, n):
-                a = thetas[i] - thetas[i-1] + u2s[i] - u1s[i-1]
-                e = getattr(pf, pen_func)(a, beta, rho)
-                summ = thetas[i] + thetas[i-1] + u2s[i] + u1s[i-1]
-                z1s[i-1] = 0.5*(summ - e)
-                z2s[i] = 0.5*(summ + e)
+            if pen_func == "perturbed_node":
+                for i in range(1, n):
+                    z1s[i-1], z2s[i] = pf.perturbed_node(thetas[i-1],
+                                                         thetas[i],
+                                                         u1s[i-1],
+                                                         u2s[i],
+                                                         beta,
+                                                         rho)
+            else:
+                for i in range(1, n):
+                    a = thetas[i] - thetas[i-1] + u2s[i] - u1s[i-1]
+                    e = getattr(pf, pen_func)(a, beta, rho)
+                    summ = thetas[i] + thetas[i-1] + u2s[i] + u1s[i-1]
+                    z1s[i-1] = 0.5*(summ - e)
+                    z2s[i] = 0.5*(summ + e)
 
             """ U0 Update """
             for i in range(nn):
