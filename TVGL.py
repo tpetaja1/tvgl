@@ -25,9 +25,6 @@ class TVGL(object):
         self.max_step = 0.1
         self.lambd = lambd
         self.beta = beta
-        print "Rho: %s" % self.rho
-        print "Lambda: %s" % self.lambd
-        print "Beta: %s" % self.beta
         self.thetas = [np.ones((self.dimension, self.dimension))] * self.blocks
         self.z0s = [np.ones((self.dimension, self.dimension))] * self.blocks
         self.z1s = [np.ones((self.dimension, self.dimension))] * self.blocks
@@ -51,11 +48,8 @@ class TVGL(object):
                             self.dimension = len(line.split(splitter)) - 1
                         else:
                             self.dimension = len(line.split(splitter))
-        datasamples = i + 1 - comment_count
-        print "Total data samples: %s" % datasamples
-        self.obs = datasamples / self.blocks
-        print "Blocks: %s" % self.blocks
-        print "Observations in a block: %s" % self.obs
+        self.datasamples = i + 1 - comment_count
+        self.obs = self.datasamples / self.blocks
         with open(filename, "r") as f:
             lst = []
             block = 0
@@ -163,7 +157,6 @@ class TVGL(object):
                     stopping_criteria = True
             thetas_pre = list(self.thetas)
             self.iteration += 1
-            #print "iter %s" % self.iteration
             #self.adjust_rho()
         self.run_time = "{0:.3g}".format(time.time() - start_time)
         self.final_tuning(stopping_criteria, max_iter)
@@ -177,7 +170,7 @@ class TVGL(object):
     def u_update(self):
         pass
 
-    def terminate_pools(self):
+    def terminate_processes(self):
         pass
 
     def init_algorithm(self):
@@ -186,7 +179,7 @@ class TVGL(object):
     def final_tuning(self, stopping_criteria, max_iter):
         self.thetas = [np.round(theta, self.roundup) for theta in self.thetas]
         #self.only_true_false_edges()
-        self.terminate_pools()
+        self.terminate_processes()
         if stopping_criteria:
             print "\nIterations to complete: %s" % self.iteration
         else:
@@ -204,19 +197,18 @@ class TVGL(object):
                         self.thetas[k][j, i] = 0
 
     def temporal_deviations(self):
-        deviations = np.zeros(self.blocks - 1)
+        self.deviations = np.zeros(self.blocks - 1)
         for i in range(0, self.blocks - 1):
             dif = self.thetas[i+1] - self.thetas[i]
             np.fill_diagonal(dif, 0)
-            deviations[i] = np.linalg.norm(dif)
-        print deviations
+            self.deviations[i] = np.linalg.norm(dif)
         try:
-            self.deviations = deviations/max(deviations)
-            self.dev_ratio = float(max(deviations))/float(np.mean(deviations))
+            self.norm_deviations = self.deviations/max(self.deviations)
+            self.dev_ratio = float(max(self.deviations))/float(
+                np.mean(self.deviations))
         except ZeroDivisionError:
-            self.deviations = deviations
+            self.norm_deviations = self.deviations
             self.dev_ratio = 0
-        print "Temp deviations ratio: {0:.3g}".format(self.dev_ratio)
 
     def correct_edges(self):
         self.real_edges = 0

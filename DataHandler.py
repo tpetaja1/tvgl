@@ -94,8 +94,8 @@ class DataHandler(object):
     def write_network_results(self, datafile, alg_type, alg, splitter=","):
         run_time = datetime.datetime.now()
         results_name = "network_results/%s_di%sbl%sob%sla%sbe%s_%s.csv" % (
-            alg_type, alg.dimension, alg.blocks, alg.obs, alg.lambd,
-            alg.beta, run_time.strftime("%Y%m%d%H%M%S"))
+            alg_type, alg.dimension, alg.blocks, alg.obs, int(alg.lambd),
+            int(alg.beta), run_time.strftime("%Y%m%d%H%M%S"))
         """ Read features """
         with open(datafile, "r") as f:
             for i, line in enumerate(f):
@@ -132,6 +132,12 @@ class DataHandler(object):
                         % alg.dev_ratio)
             f.write("Temporal deviations ")
             for dev in alg.deviations:
+                try:
+                    f.write(",{0:.3f}".format(dev))
+                except ValueError:
+                    f.write(",%s" % dev)
+            f.write("\nNormalized Temporal deviations ")
+            for dev in alg.norm_deviations:
                 try:
                     f.write(",{0:.3f}".format(dev))
                 except ValueError:

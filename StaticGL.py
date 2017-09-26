@@ -47,6 +47,7 @@ class StaticGL(TVGL):
 
     def temporal_deviations(self):
         self.deviations = ["n/a"]
+        self.norm_deviations = ["n/a"]
         self.dev_ratio = "n/a"
 
     def correct_edges(self):
