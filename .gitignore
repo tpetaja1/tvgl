@@ -1,6 +1,6 @@
 *.pyc
 *~
 drafts/*
-results/*
-network_results/*
+results/*.csv
+network_results/*.csv
 matlab/*

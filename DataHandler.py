@@ -164,47 +164,53 @@ class DataHandler(object):
                     f.write("\n")
                 f.write("\n\n")
 
-    def write_results(self, datafile, alg_type, alg):
+    def write_results(self, datafile, alg_type, alg, splitter=','):
         run_time = datetime.datetime.now()
-        results_name = "results/%s_di%sbl%sob%sla%sbe%s_%s.txt" % (
-            alg_type, alg.dimension, alg.blocks, alg.obs, alg.lambd,
-            alg.beta, run_time.strftime("%Y%m%d%H%M%S"))
+        results_name = "results/%s_di%sbl%sob%sla%sbe%s_%s.csv" % (
+            alg_type, alg.dimension, alg.blocks, alg.obs, int(alg.lambd),
+            int(alg.beta), run_time.strftime("%Y%m%d%H%M%S"))
         with open(results_name, "w") as f:
             f.write("# Information\n")
-            f.write("Run datetime: %s\n" %
+            f.write("Run datetime, %s\n" %
                     run_time.strftime("%Y-%m-%d %H:%M:%S"))
-            f.write("Data file: %s\n" % datafile)
-            f.write("Algorithm type: %s\n" % alg.__class__.__name__)
-            f.write("Penalty function: %s\n" % alg.penalty_function)
-            f.write("Data dimension: %s\n" % alg.dimension)
-            f.write("Blocks: %s\n" % alg.blocks)
-            f.write("Observations in a block: %s\n" % alg.obs)
-            f.write("Rho: %s\n" % alg.rho)
-            f.write("Beta: %s\n" % alg.beta)
-            f.write("Lambda: %s\n" % alg.lambd)
-            f.write("Processes used: %s\n" % alg.processes)
-            f.write("Total edges: %s\n" % alg.real_edges)
-            f.write("Total edgeless: %s\n" % alg.real_edgeless)
+            f.write("Data file, %s\n" % datafile)
+            f.write("Algorithm type, %s\n" % alg.__class__.__name__)
+            f.write("Penalty function, %s\n" % alg.penalty_function)
+            f.write("Data dimension, %s\n" % alg.dimension)
+            f.write("Blocks, %s\n" % alg.blocks)
+            f.write("Observations in a block, %s\n" % alg.obs)
+            f.write("Rho, %s\n" % alg.rho)
+            f.write("Beta, %s\n" % alg.beta)
+            f.write("Lambda, %s\n" % alg.lambd)
+            f.write("Processes used, %s\n" % alg.processes)
+            f.write("Total edges, %s\n" % alg.real_edges)
+            f.write("Total edgeless, %s\n" % alg.real_edgeless)
             f.write("\n")
             f.write("# Results\n")
-            f.write("Algorithm run time: %s seconds\n" % alg.run_time)
-            f.write("Iterations to complete: %s\n\n" % alg.iteration)
-            f.write("Correct positive edges: %s\n" % alg.correct_positives)
-            f.write("All positives: %s\n" % alg.all_positives)
-            f.write("F1 Score: {0:.3f}\n"
+            f.write("Algorithm run time, %s seconds\n" % alg.run_time)
+            f.write("Iterations to complete, %s\n\n" % alg.iteration)
+            f.write("Correct positive edges, %s\n" % alg.correct_positives)
+            f.write("All positives, %s\n" % alg.all_positives)
+            f.write("F1 Score, {0:.3f}\n"
                     .format(alg.f1score))
             try:
-                f.write("Temporal deviations ratio (max/mean): {0:.3f}\n"
+                f.write("Temporal deviations ratio (max/mean), {0:.3f}\n"
                         .format(alg.dev_ratio))
             except ValueError:
-                f.write("Temporal deviations ratio (max/mean): %s\n"
+                f.write("Temporal deviations ratio (max/mean), %s\n"
                         % alg.dev_ratio)
-            f.write("Temporal deviations: ")
+            f.write("Temporal deviations ")
             for dev in alg.deviations:
                 try:
-                    f.write("{0:.3f} ".format(dev))
+                    f.write(",{0:.3f}".format(dev))
                 except ValueError:
-                    f.write("%s" % dev)
+                    f.write(",%s" % dev)
+            f.write("\nNormalized Temporal deviations ")
+            for dev in alg.norm_deviations:
+                try:
+                    f.write(",{0:.3f}".format(dev))
+                except ValueError:
+                    f.write(",%s" % dev)
             f.write("\n")
 
 
