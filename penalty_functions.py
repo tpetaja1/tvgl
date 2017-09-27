@@ -39,7 +39,7 @@ def group_lasso(a, beta, rho):
     return e
 
 
-def perturbed_node(theta_pre, theta, u1, u2, beta, rho):
+def perturbed_node(theta_pre, theta, u1, u2, beta, rho, ct, cc):
 
     """ Initialize ADMM algorithm """
     dimension = np.shape(theta)[0]
@@ -50,12 +50,6 @@ def perturbed_node(theta_pre, theta, u1, u2, beta, rho):
     w = np.ones((dimension, dimension))
     uu1 = np.zeros((dimension, dimension))
     uu2 = np.zeros((dimension, dimension))
-    c = np.zeros((dimension, 3*dimension))
-    c[:, 0:dimension] = np.eye(dimension)
-    c[:, dimension:2*dimension] = -np.eye(dimension)
-    c[:, 2*dimension:3*dimension] = np.eye(dimension)
-    ct = c.transpose()
-    cc = np.linalg.inv(np.dot(ct, c) + 2*np.eye(3*dimension))
 
     """ Run algorithm """
     iteration = 0

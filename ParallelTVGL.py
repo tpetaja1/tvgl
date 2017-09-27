@@ -33,6 +33,12 @@ def mp_parallel_tvgl((thetas, z0s, z1s, z2s, u0s, u1s, u2s,
         thetas_pre = []
         final_thetas = {}
         dimension = np.shape(thetas[0])[0]
+        c = np.zeros((dimension, 3*dimension))
+        c[:, 0:dimension] = np.eye(dimension)
+        c[:, dimension:2*dimension] = -np.eye(dimension)
+        c[:, 2*dimension:3*dimension] = np.eye(dimension)
+        ct = c.transpose()
+        cc = np.linalg.inv(np.dot(ct, c) + 2*np.eye(3*dimension))
         while iteration < MAX_ITER:
 
             """ Send last Z2, U2 values to next process,
@@ -80,7 +86,9 @@ def mp_parallel_tvgl((thetas, z0s, z1s, z2s, u0s, u1s, u2s,
                                                          u1s[i-1],
                                                          u2s[i],
                                                          beta,
-                                                         rho)
+                                                         rho,
+                                                         ct,
+                                                         cc)
             else:
                 for i in range(1, n):
                     a = thetas[i] - thetas[i-1] + u2s[i] - u1s[i-1]
