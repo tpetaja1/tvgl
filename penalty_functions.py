@@ -43,7 +43,6 @@ def perturbed_node(theta_pre, theta, u1, u2, beta, rho, ct, cc):
 
     """ Initialize ADMM algorithm """
     dimension = np.shape(theta)[0]
-    nju = beta/(2*rho)
     y1 = np.ones((dimension, dimension))
     y2 = np.ones((dimension, dimension))
     v = np.ones((dimension, dimension))
@@ -59,12 +58,7 @@ def perturbed_node(theta_pre, theta, u1, u2, beta, rho, ct, cc):
         a = (y1 - y2 - w - uu1 + (w.transpose() - uu2).transpose())/2
 
         """ V Update """
-        e = np.zeros((dimension, dimension))
-        for j in range(dimension):
-            l2_norm = np.linalg.norm(a[:, j])
-            if l2_norm > nju:
-                e[:, j] = (1 - nju/l2_norm)*a[:, j]
-        v = e
+        v = group_lasso(a, beta, rho)
 
         """ W, Y1, Y2 Update """
         b = np.zeros((3*dimension, dimension))
