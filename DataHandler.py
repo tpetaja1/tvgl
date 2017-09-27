@@ -91,6 +91,17 @@ class DataHandler(object):
                 line = line[1:]
                 new_file.write("%s\n" % line)
 
+    def write_network_to_matrix_form(self, datafile):
+        new_filename = datafile.split(".")[0] + "_matrix.csv"
+        self.read_network(datafile, inversion=False)
+        with open(new_filename, "w") as f:
+            for sig in self.inverse_sigmas:
+                for i in range(np.shape(sig)[0]):
+                    for j in range(np.shape(sig)[0]):
+                        f.write(str(sig[i, j]) + ",")
+                    f.write("\n")
+                f.write("\n\n")
+
     def write_network_results(self, datafile, alg_type, alg, splitter=","):
         run_time = datetime.datetime.now()
         results_name = "network_results/%s_di%sbl%sob%sla%sbe%s_%s.csv" % (
@@ -217,5 +228,5 @@ class DataHandler(object):
 if __name__ == "__main__":
     dh = DataHandler()
     dh.read_network("networks/network1.csv")
-    dh.read_network("networks/network3.csv")
+    dh.read_network("networks/network2.csv")
     dh.generate_real_data([500, 500])
