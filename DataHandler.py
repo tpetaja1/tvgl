@@ -228,5 +228,5 @@ class DataHandler(object):
 if __name__ == "__main__":
     dh = DataHandler()
     dh.read_network("networks/network1.csv")
-    dh.read_network("networks/network2.csv")
+    dh.read_network("networks/network3.csv")
     dh.generate_real_data([500, 500])
