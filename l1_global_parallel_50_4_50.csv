@@ -1,0 +1,25 @@
+# Information
+Run datetime, 2017-09-28 20:38:28
+Data file, synthetic_data/global_restructuring_1000x20.csv
+Algorithm type, ParallelTVGL
+Penalty function, element_wise
+Data dimension, 20
+Blocks, 50
+Observations in a block, 20
+Rho, 6.7
+Beta, 50
+Lambda, 4.0
+Processes used, 25
+Total edges, 1350
+Total edgeless, 8150
+
+# Results
+Algorithm run time, 24.9 seconds
+Iterations to complete, 3062
+
+Correct positive edges, 831
+All positives, 857
+F1 Score, 0.753
+Temporal deviations ratio (max/mean), 15.146
+Temporal deviations ,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,1.414,0.000,0.000,1.414,0.000,1.414,2.000,2.828,6.481,2.000,1.414,0.000,2.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000
+Normalized Temporal deviations ,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.218,0.000,0.000,0.218,0.000,0.218,0.309,0.436,1.000,0.309,0.218,0.000,0.309,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000

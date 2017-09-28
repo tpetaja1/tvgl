@@ -1,0 +1,25 @@
+# Information
+Run datetime, 2017-09-28 20:15:57
+Data file, synthetic_data/perturbed_node_1000x20.csv
+Algorithm type, ParallelTVGL
+Penalty function, perturbed_node
+Data dimension, 20
+Blocks, 50
+Observations in a block, 20
+Rho, 6.7
+Beta, 50
+Lambda, 2.0
+Processes used, 25
+Total edges, 1425
+Total edgeless, 8075
+
+# Results
+Algorithm run time, 79 seconds
+Iterations to complete, 2281
+
+Correct positive edges, 1385
+All positives, 1421
+F1 Score, 0.973
+Temporal deviations ratio (max/mean), 23.779
+Temporal deviations ,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,1.414,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,4.000,0.000,1.414,0.000,0.000,0.000,0.000,0.000,0.000,0.000,1.414,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000
+Normalized Temporal deviations ,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.354,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,1.000,0.000,0.354,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.354,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000

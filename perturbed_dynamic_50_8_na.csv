@@ -1,0 +1,25 @@
+# Information
+Run datetime, 2017-09-28 20:20:47
+Data file, synthetic_data/perturbed_node_1000x20.csv
+Algorithm type, DynamicGL
+Penalty function, n/a
+Data dimension, 20
+Blocks, 50
+Observations in a block, 20
+Rho, 21
+Beta, 0
+Lambda, 8.0
+Processes used, 25
+Total edges, 1425
+Total edgeless, 8075
+
+# Results
+Algorithm run time, 0.337 seconds
+Iterations to complete, n/a
+
+Correct positive edges, 664
+All positives, 1699
+F1 Score, 0.425
+Temporal deviations ratio (max/mean), 1.221
+Temporal deviations ,1.637,2.020,2.145,2.258,1.800,1.903,1.806,1.619,1.371,2.049,2.140,1.709,1.924,1.612,1.726,1.913,1.892,1.738,1.679,1.833,1.606,1.738,1.697,1.828,1.738,2.069,2.149,1.965,1.913,2.182,2.227,1.892,1.913,2.307,2.263,2.040,2.069,1.679,1.811,1.929,1.939,2.163,1.794,1.772,1.954,1.844,1.849,1.691,1.806
+Normalized Temporal deviations ,0.710,0.876,0.930,0.979,0.780,0.825,0.783,0.702,0.594,0.889,0.928,0.741,0.834,0.699,0.748,0.829,0.820,0.753,0.728,0.795,0.696,0.753,0.736,0.792,0.753,0.897,0.932,0.852,0.829,0.946,0.966,0.820,0.829,1.000,0.981,0.884,0.897,0.728,0.785,0.836,0.841,0.938,0.778,0.768,0.847,0.799,0.802,0.733,0.783
