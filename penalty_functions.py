@@ -3,6 +3,11 @@ import numpy as np
 
 
 def soft_threshold_odd(a, lambd, rho):
+
+    # The off-diagonal Lasso penalty function.
+    # Computes the Z0 update with off-diagonal
+    # soft-threshold operator
+
     parameter = lambd/rho
     dimension = np.shape(a)[0]
     e = np.eye(dimension)
@@ -17,29 +22,42 @@ def soft_threshold_odd(a, lambd, rho):
 
 
 def element_wise(a, beta, rho):
-    nju = 2*beta/rho
+
+    # The element-wise l1 penalty function.
+    # Used in (Z1, Z2) update
+
+    eta = 2*beta/rho
     dimension = np.shape(a)[0]
     e = np.zeros((dimension, dimension))
     for i in range(dimension):
         for j in range(dimension):
-            if abs(a[i, j]) > nju:
+            if abs(a[i, j]) > eta:
                 e[i, j] = np.sign(a[i, j])*(
-                    abs(a[i, j]) - nju)
+                    abs(a[i, j]) - eta)
     return e
 
 
 def group_lasso(a, beta, rho):
-    nju = 2*beta/rho
+
+    # The Group Lasso l2 penalty function.
+    # Used in (Z1, Z2) update
+
+    eta = 2*beta/rho
     dimension = np.shape(a)[0]
     e = np.zeros((dimension, dimension))
     for j in range(dimension):
         l2_norm = np.linalg.norm(a[:, j])
-        if l2_norm > nju:
-            e[:, j] = (1 - nju/l2_norm)*a[:, j]
+        if l2_norm > eta:
+            e[:, j] = (1 - eta/l2_norm)*a[:, j]
     return e
 
 
 def perturbed_node(theta_pre, theta, u1, u2, beta, rho, ct, cc):
+
+    # The row-column overlap penalty function (Perturbed Node).
+    # Used in (Z1, Z2 update)
+    # Computes the update as a sub-ADMM algorithm,
+    # as no closed form update exists.
 
     """ Initialize ADMM algorithm """
     dimension = np.shape(theta)[0]

@@ -4,10 +4,15 @@ import time
 from DataHandler import DataHandler
 
 
-class TVGL(object):
+class BaseGraphicalLasso(object):
+
+    # The parent class for Graphical Lasso
+    # problems. Most of the methods and
+    # attributes are defined and initialized here.
 
     np.set_printoptions(precision=3)
 
+    """ Initialize attributes, read data """
     def __init__(self, filename, blocks, lambd, beta,
                  processes, penalty_function="group_lasso",
                  datecolumn=True):
@@ -32,10 +37,15 @@ class TVGL(object):
         self.u0s = [np.zeros((self.dimension, self.dimension))] * self.blocks
         self.u1s = [np.zeros((self.dimension, self.dimension))] * self.blocks
         self.u2s = [np.zeros((self.dimension, self.dimension))] * self.blocks
-        self.nju = float(self.obs)/float(3*self.rho)
+        self.eta = float(self.obs)/float(3*self.rho)
         self.e = 1e-5
         self.roundup = 1
 
+    """ Read data from the given file. Get parameters of data
+        (number of data samples, observations in a block).
+        Compute empirical covariance matrices.
+        Compute real inverse covariance matrices,
+        if provided in the second line of the data file. """
     def read_data(self, filename, comment="#", splitter=","):
         with open(filename, "r") as f:
             comment_count = 0
@@ -82,6 +92,8 @@ class TVGL(object):
                     count = 0
                     block += 1
 
+    """ Computes real inverse covariance matrices with DataHandler,
+        if provided in the second line of the data file """
     def generate_real_thetas(self, line, splitter):
         dh = DataHandler()
         infos = line.split(splitter)
@@ -94,29 +106,13 @@ class TVGL(object):
         self.real_thetas = dh.inverse_sigmas
         dh = None
 
+    """ Assigns rho based on number of observations in a block """
     def get_rho(self):
-        #if self.obs % 3 == 0:
-        #    return self.obs / 3 + 1
-        #else:
-        #    return np.ceil(float(self.obs) / float(3))
         return float(self.obs + 0.1) / float(3)
-        #return 2*self.obs
 
-    def adjust_rho(self):
-        step = 1/float(self.nju*2)
-        step = max(self.max_step, step/1.1)
-        self.rho = float(2*self.obs*step)/float(3)
-        #self.rho = max(float(self.obs + 0.1) / float(3), self.rho/1.1)
-        #if 3*self.rho - self.obs <= 0.01:
-        #    return
-        #self.rho = (np.exp(float(-self.iteration)/100) + self.obs)/3
-        #if self.rho == self.max_rho:
-        #    return
-        #self.rho = min(self.rho * 1.1, self.max_rho)
-        self.nju = float(self.obs)/float(3*self.rho)
-        print "Rho: %s" % self.rho
-        print "Nju: %s" % self.nju
-
+    """ The core of the ADMM algorithm. To be called separately.
+        Contains calls to the three update methods, which are to be
+        defined in the child classes. """
     def run_algorithm(self, max_iter=10000):
         self.init_algorithm()
         self.iteration = 0
@@ -128,8 +124,8 @@ class TVGL(object):
                 print "\n*** Iteration %s ***" % self.iteration
                 print "Time passed: {0:.3g}s".format(time.time() - start_time)
                 print "Rho: %s" % self.rho
-                print "Nju: %s" % self.nju
-                print "Step: {0:.3f}".format(1/(2*self.nju))
+                print "Eta: %s" % self.eta
+                print "Step: {0:.3f}".format(1/(2*self.eta))
             if self.iteration % 500 == 0 or self.iteration == 1:
                 s_time = time.time()
             self.theta_update()
@@ -157,7 +153,6 @@ class TVGL(object):
                     stopping_criteria = True
             thetas_pre = list(self.thetas)
             self.iteration += 1
-            #self.adjust_rho()
         self.run_time = "{0:.3g}".format(time.time() - start_time)
         self.final_tuning(stopping_criteria, max_iter)
 
@@ -176,15 +171,19 @@ class TVGL(object):
     def init_algorithm(self):
         pass
 
+    """ Performs final tuning for the converged thetas,
+        closes possible multiprocesses. """
     def final_tuning(self, stopping_criteria, max_iter):
         self.thetas = [np.round(theta, self.roundup) for theta in self.thetas]
-        #self.only_true_false_edges()
+        self.only_true_false_edges()
         self.terminate_processes()
         if stopping_criteria:
             print "\nIterations to complete: %s" % self.iteration
         else:
             print "\nMax iterations (%s) reached" % max_iter
 
+    """ Converts values in the thetas into boolean values,
+        informing only the existence of an edge without weight. """
     def only_true_false_edges(self):
         for k in range(self.blocks):
             for i in range(self.dimension - 1):
@@ -196,6 +195,8 @@ class TVGL(object):
                         self.thetas[k][i, j] = 0
                         self.thetas[k][j, i] = 0
 
+    """ Computes the Temporal Deviations between neighboring
+        thetas, both absolute and normalized values. """
     def temporal_deviations(self):
         self.deviations = np.zeros(self.blocks - 1)
         for i in range(0, self.blocks - 1):
@@ -210,6 +211,8 @@ class TVGL(object):
             self.norm_deviations = self.deviations
             self.dev_ratio = 0
 
+    """ Computes the measures of correct edges in thetas,
+        if true inverse covariance matrices are provided. """
     def correct_edges(self):
         self.real_edges = 0
         self.real_edgeless = 0

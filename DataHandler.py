@@ -1,6 +1,7 @@
 
 import numpy as np
 import datetime
+import sys
 
 
 class DataHandler(object):
@@ -10,6 +11,10 @@ class DataHandler(object):
         self.sigmas = []
         self.network_files = []
 
+    """ Reads a network in given file and generates
+        inverse covariance matrices. Expected format for
+        networks in given files is:
+        [start node index],[end node index],[edge weight]  """
     def read_network(self, filename, comment="#", splitter=",",
                      inversion=True):
         nodes = []
@@ -41,25 +46,8 @@ class DataHandler(object):
             print np.shape(sigma)
             print network
 
-    def init_true_inverse_covariance_matrices(self):
-        inverse_sigma1 = np.array([[1.00, 0.50, 0.00, 0.00, 0.00, 0.00],
-                                   [0.50, 1.00, 0.50, 0.25, 0.00, 0.00],
-                                   [0.00, 0.50, 1.00, 0.00, 0.25, 0.00],
-                                   [0.00, 0.25, 0.00, 1.00, 0.50, 0.00],
-                                   [0.00, 0.00, 0.25, 0.50, 1.00, 0.25],
-                                   [0.00, 0.00, 0.00, 0.00, 0.25, 1.00]])
-
-        inverse_sigma2 = np.array([[1.00, 0.00, 0.00, 0.50, 0.00, 0.00],
-                                   [0.00, 1.00, 0.00, 0.00, 0.50, 0.00],
-                                   [0.00, 0.00, 1.00, 0.50, 0.25, 0.50],
-                                   [0.50, 0.00, 0.50, 1.00, 0.00, 0.00],
-                                   [0.00, 0.50, 0.25, 0.00, 1.00, 0.00],
-                                   [0.00, 0.00, 0.50, 0.00, 0.00, 1.00]])
-        self.inverse_sigmas.append(inverse_sigma1)
-        self.inverse_sigmas.append(inverse_sigma2)
-        self.sigmas.append(np.linalg.inv(inverse_sigma1))
-        self.sigmas.append(np.linalg.inv(inverse_sigma2))
-
+    """ Generates a data file (.csv) from networks previously defined in
+        self.sigmas (covariance matrix) """
     def generate_real_data(self, counts=[100, 100]):
         if len(counts) is not len(self.sigmas):
             raise Exception(
@@ -91,6 +79,7 @@ class DataHandler(object):
                 line = line[1:]
                 new_file.write("%s\n" % line)
 
+    """ Converts a network into matrix form """
     def write_network_to_matrix_form(self, datafile):
         new_filename = datafile.split(".")[0] + "_matrix.csv"
         self.read_network(datafile, inversion=False)
@@ -102,11 +91,13 @@ class DataHandler(object):
                     f.write("\n")
                 f.write("\n\n")
 
-    def write_network_results(self, datafile, alg_type, alg, splitter=","):
+    """ Creates a file containing results, with network details,
+        from converged algorithm instance """
+    def write_network_results(self, datafile, solver, splitter=","):
         run_time = datetime.datetime.now()
-        results_name = "network_results/%s_di%sbl%sob%sla%sbe%s_%s.csv" % (
-            alg_type, alg.dimension, alg.blocks, alg.obs, int(alg.lambd),
-            int(alg.beta), run_time.strftime("%Y%m%d%H%M%S"))
+        results_name = "network_results/%s_la%sbe%s_%s.csv" % (
+            solver.__class__.__name__, int(solver.lambd),
+            int(solver.beta), run_time.strftime("%Y%m%d%H%M%S"))
         """ Read features """
         with open(datafile, "r") as f:
             for i, line in enumerate(f):
@@ -122,102 +113,104 @@ class DataHandler(object):
             f.write("Run datetime, %s\n" %
                     run_time.strftime("%Y-%m-%d %H:%M:%S"))
             f.write("Data file, %s\n" % datafile)
-            f.write("Algorithm type, %s\n" % alg.__class__.__name__)
-            f.write("Penalty function, %s\n" % alg.penalty_function)
-            f.write("Data dimension, %s\n" % alg.dimension)
-            f.write("Blocks, %s\n" % alg.blocks)
-            f.write("Observations in a block, %s\n" % alg.obs)
-            f.write("Rho, %s\n" % alg.rho)
-            f.write("Beta, %s\n" % alg.beta)
-            f.write("Lambda, %s\n" % alg.lambd)
-            f.write("Processes used, %s\n" % alg.processes)
+            f.write("Solver type, %s\n" % solver.__class__.__name__)
+            f.write("Penalty function, %s\n" % solver.penalty_function)
+            f.write("Data dimension, %s\n" % solver.dimension)
+            f.write("Blocks, %s\n" % solver.blocks)
+            f.write("Observations in a block, %s\n" % solver.obs)
+            f.write("Rho, %s\n" % solver.rho)
+            f.write("Beta, %s\n" % solver.beta)
+            f.write("Lambda, %s\n" % solver.lambd)
+            f.write("Processes used, %s\n" % solver.processes)
             f.write("\n")
             f.write("# Results\n")
-            f.write("Algorithm run time, %s seconds\n" % alg.run_time)
-            f.write("Iterations to complete, %s\n\n" % alg.iteration)
+            f.write("Algorithm run time, %s seconds\n" % solver.run_time)
+            f.write("Iterations to complete, %s\n\n" % solver.iteration)
             try:
                 f.write("Temporal deviations ratio (max/mean), {0:.3f}\n"
-                        .format(alg.dev_ratio))
+                        .format(solver.dev_ratio))
             except ValueError:
                 f.write("Temporal deviations ratio (max/mean), %s\n"
-                        % alg.dev_ratio)
+                        % solver.dev_ratio)
             f.write("Temporal deviations ")
-            for dev in alg.deviations:
+            for dev in solver.deviations:
                 try:
                     f.write(",{0:.3f}".format(dev))
                 except ValueError:
                     f.write(",%s" % dev)
             f.write("\nNormalized Temporal deviations ")
-            for dev in alg.norm_deviations:
+            for dev in solver.norm_deviations:
                 try:
                     f.write(",{0:.3f}".format(dev))
                 except ValueError:
                     f.write(",%s" % dev)
             """ Write networks """
             f.write("\n\n#Networks:\n\n")
-            for k in range(alg.blocks):
+            for k in range(solver.blocks):
                 f.write("Block %s," % k)
-                f.write(alg.blockdates[k] + "\n")
+                f.write(solver.blockdates[k] + "\n")
                 if k > 0:
                     f.write("Dev to prev,")
-                    f.write("{0:.3f},".format(alg.deviations[k-1]))
-                if k < alg.blocks - 1:
+                    f.write("{0:.3f},".format(solver.deviations[k-1]))
+                if k < solver.blocks - 1:
                     f.write("Dev to next,")
-                    f.write("{0:.3f}".format(alg.deviations[k]))
+                    f.write("{0:.3f}".format(solver.deviations[k]))
                 f.write("\n")
                 for feat in feats:
                     f.write("," + feat)
                 f.write("\n")
-                for i in range(alg.dimension):
+                for i in range(solver.dimension):
                     f.write(features[i])
-                    for j in range(alg.dimension):
-                        f.write("," + str(alg.thetas[k][i, j]))
+                    for j in range(solver.dimension):
+                        f.write("," + str(solver.thetas[k][i, j]))
                     f.write("\n")
                 f.write("\n\n")
 
-    def write_results(self, datafile, alg_type, alg, splitter=','):
+    """ Creates a file containing results, without network details,
+        from converged solver instance """
+    def write_results(self, datafile, solver, splitter=','):
         run_time = datetime.datetime.now()
-        results_name = "results/%s_di%sbl%sob%sla%sbe%s_%s.csv" % (
-            alg_type, alg.dimension, alg.blocks, alg.obs, int(alg.lambd),
-            int(alg.beta), run_time.strftime("%Y%m%d%H%M%S"))
+        results_name = "results/%s_la%sbe%s_%s.csv" % (
+            solver.__class__.__name__, int(solver.lambd),
+            int(solver.beta), run_time.strftime("%Y%m%d%H%M%S"))
         with open(results_name, "w") as f:
             f.write("# Information\n")
             f.write("Run datetime, %s\n" %
                     run_time.strftime("%Y-%m-%d %H:%M:%S"))
             f.write("Data file, %s\n" % datafile)
-            f.write("Algorithm type, %s\n" % alg.__class__.__name__)
-            f.write("Penalty function, %s\n" % alg.penalty_function)
-            f.write("Data dimension, %s\n" % alg.dimension)
-            f.write("Blocks, %s\n" % alg.blocks)
-            f.write("Observations in a block, %s\n" % alg.obs)
-            f.write("Rho, %s\n" % alg.rho)
-            f.write("Beta, %s\n" % alg.beta)
-            f.write("Lambda, %s\n" % alg.lambd)
-            f.write("Processes used, %s\n" % alg.processes)
-            f.write("Total edges, %s\n" % alg.real_edges)
-            f.write("Total edgeless, %s\n" % alg.real_edgeless)
+            f.write("Solver type, %s\n" % solver.__class__.__name__)
+            f.write("Penalty function, %s\n" % solver.penalty_function)
+            f.write("Data dimension, %s\n" % solver.dimension)
+            f.write("Blocks, %s\n" % solver.blocks)
+            f.write("Observations in a block, %s\n" % solver.obs)
+            f.write("Rho, %s\n" % solver.rho)
+            f.write("Beta, %s\n" % solver.beta)
+            f.write("Lambda, %s\n" % solver.lambd)
+            f.write("Processes used, %s\n" % solver.processes)
+            f.write("Total edges, %s\n" % solver.real_edges)
+            f.write("Total edgeless, %s\n" % solver.real_edgeless)
             f.write("\n")
             f.write("# Results\n")
-            f.write("Algorithm run time, %s seconds\n" % alg.run_time)
-            f.write("Iterations to complete, %s\n\n" % alg.iteration)
-            f.write("Correct positive edges, %s\n" % alg.correct_positives)
-            f.write("All positives, %s\n" % alg.all_positives)
+            f.write("Algorithm run time, %s seconds\n" % solver.run_time)
+            f.write("Iterations to complete, %s\n\n" % solver.iteration)
+            f.write("Correct positive edges, %s\n" % solver.correct_positives)
+            f.write("All positives, %s\n" % solver.all_positives)
             f.write("F1 Score, {0:.3f}\n"
-                    .format(alg.f1score))
+                    .format(solver.f1score))
             try:
                 f.write("Temporal deviations ratio (max/mean), {0:.3f}\n"
-                        .format(alg.dev_ratio))
+                        .format(solver.dev_ratio))
             except ValueError:
                 f.write("Temporal deviations ratio (max/mean), %s\n"
-                        % alg.dev_ratio)
+                        % solver.dev_ratio)
             f.write("Temporal deviations ")
-            for dev in alg.deviations:
+            for dev in solver.deviations:
                 try:
                     f.write(",{0:.3f}".format(dev))
                 except ValueError:
                     f.write(",%s" % dev)
             f.write("\nNormalized Temporal deviations ")
-            for dev in alg.norm_deviations:
+            for dev in solver.norm_deviations:
                 try:
                     f.write(",{0:.3f}".format(dev))
                 except ValueError:
@@ -225,8 +218,11 @@ class DataHandler(object):
             f.write("\n")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" and len(sys.argv) % 2 == 1:
     dh = DataHandler()
-    dh.read_network("networks/network1.csv")
-    dh.read_network("networks/network3.csv")
-    dh.generate_real_data([500, 500])
+    data_counts = []
+    for i in range(1, len(sys.argv), 2):
+        dh.read_network(sys.argv[i])
+        data_counts.append(int(sys.argv[i+1]))
+    if len(data_counts) > 0:
+        dh.generate_real_data(data_counts)
