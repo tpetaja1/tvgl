@@ -19,8 +19,7 @@ Based on paper from Hallac et al. (2017)
    - StaticGL.py           -   GL solver solving T independent GL problems
    - SingleGL.py           -   GL solver for a single GL problem
    - DataHandler.py        -   Synthetic data generator, results writer
-   - penalty_functions.py  -   Penalty functions for algorithms defined
-   - run.py                -   Executes solvers
+   - penalty_functions.py  -   Penalty functions defined for the algorithms
 
    Folders:
    - omxh_data             -   OMXH25 daily returns data
@@ -31,9 +30,9 @@ Based on paper from Hallac et al. (2017)
  		      
 ## 2. Run solvers ##
 
- Run from command line with following arguments
+ Run from command line with following arguments:
 
- - Parallel TVGL:
+ - Parallel TVGL
     1. [data file]
     2. [penalty function index]
     3. [Number of blocks to be created]
@@ -45,7 +44,7 @@ Based on paper from Hallac et al. (2017)
     Example:
        $ python ParallelTVGL.py synthetic_data/datafile1.csv 2 10 2 4 4
 
- - Serial TVGL:
+ - Serial TVGL
     1. [data file]
     2. [penalty function index]
     3. [Number of blocks to be created]
@@ -55,7 +54,7 @@ Based on paper from Hallac et al. (2017)
     Example:  
        $ python SerialTVGL.py synthetic_data/datafile1.csv 2 10 2 4
 
- - Static GL:
+ - Static GL
     1. [data file]
     2. [Number of blocks to be created]
     3. [lambda]
@@ -65,7 +64,7 @@ Based on paper from Hallac et al. (2017)
     Example:
        $ python StaticGL.py synthetic_data/datafile1.csv 2 10 2
 
- - Single GL:
+ - Single GL
     1. [data file]
     2. [lambda]
 
