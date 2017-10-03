@@ -6,6 +6,12 @@ import sys
 
 class DataHandler(object):
 
+    # Object for creating inverse covariance matrices
+    # and covariance matrices from network files,
+    # creating synthetic data sets,
+    # writing solver results
+
+    """ Initialize attributes """
     def __init__(self):
         self.inverse_sigmas = []
         self.sigmas = []
@@ -219,6 +225,13 @@ class DataHandler(object):
 
 
 if __name__ == "__main__" and len(sys.argv) % 2 == 1:
+
+    # Input arguments need to be pairwise.
+    # First item of the pair is the network file.
+    # Second item of the pair is number of datapoints
+    # to create from the given network.
+    # Arbitrary number of pair can be inputted.
+
     dh = DataHandler()
     data_counts = []
     for i in range(1, len(sys.argv), 2):
